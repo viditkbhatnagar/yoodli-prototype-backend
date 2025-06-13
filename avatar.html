@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Duix Avatar</title>
+  <style>
+    body,html {margin:0;height:100%;}
+    #avatar {width:100vw;height:100vh;}
+  </style>
+  <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
+</head>
+<body>
+  <div id="avatar" class="container"></div>
+  <script type="module">
+    /* --- read ?sign=…&cid=… from URL --- */
+    const qs  = new URLSearchParams(location.search);
+    const sign = qs.get('sign');
+    const conversationId = qs.get('cid');
+    if (!sign || !conversationId) {
+      document.body.textContent = 'Missing sign or conversationId';
+      throw new Error('missing params');
+    }
+
+    /* --- fire up Duix --- */
+    const duix = new window.DUIX();
+    duix.on('error', console.error);
+
+    // startAvatar helper
+    const startAvatar = () => duix.start({ openAsr: true }).catch(console.error);
+
+    duix.on('initialSuccess', startAvatar);
+    duix.on('intialSucccess', startAvatar); // legacy
+
+    duix.on('speakSection', d => console.log('[avatar]', d.text));
+
+    await duix.init({
+      sign,
+      containerLable: '#avatar',
+      conversationId,
+      platform: 'duix.com'
+    });
+
+    setTimeout(() => {
+      if (!duix.isStarted?.()) startAvatar();
+    }, 1000);
+  </script>
+</body>
+</html>
