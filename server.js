@@ -12,13 +12,15 @@ const PORT    = process.env.PORT || 3001;
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// serve client files (index.html, avatar.html, etc.)
 app.use(express.static(path.join(__dirname)));
 
-// preload your texts once
+// preload your resume.txt and jd.txt once at startup
 const resumeText = fs.readFileSync(path.join(__dirname, 'resume.txt'), 'utf8');
 const jdText     = fs.readFileSync(path.join(__dirname, 'jd.txt'),    'utf8');
 
-// Duix sign endpoint (unchanged)
+// --- Duix sign endpoint (unchanged) ---
 app.get('/api/duix/sign', (req, res) => {
   const { conversationId } = req.query;
   if (!conversationId) return res.status(400).json({ error: 'conversationId required' });
@@ -26,14 +28,14 @@ app.get('/api/duix/sign', (req, res) => {
   res.json({ sign, conversationId });
 });
 
-// New: serve your resume + JD
+// --- NEW: serve your resume + JD text ---
 app.get('/api/context', (req, res) => {
   res.json({ resumeText, jdText });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API listening on http://0.0.0.0:${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`API listening on http://0.0.0.0:${PORT}`)
+);
 
 function generateSign({ conversationId }) {
   const payload = {
