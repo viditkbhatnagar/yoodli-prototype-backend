@@ -1,9 +1,10 @@
-const multer = require('multer')
-const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } }); // 5 MB max
+const multer = require('multer');           // ✅ only once
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } }); // 5 MB
+
 const express = require('express');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const path = require('path');
+const cors    = require('cors');
+const jwt     = require('jsonwebtoken');
+const path    = require('path');
 
 const APP_ID  = '1383575020709744640';
 const APP_KEY = 'b7651b3c-bece-4fee-a13d-35ff37610498';
