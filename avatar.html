@@ -34,7 +34,15 @@
         document.body.textContent = 'Error loading context';
         return;
       }
-      const duix = new window.DUIX()
+
+      // Check if context is null or undefined
+      if (!context) {
+        console.error('Invalid context received');
+        document.body.textContent = 'Invalid context received';
+        return;
+      }
+
+      const duix = new window.DUIX();
       try {
         await duix.init({
           containerLable: '#duix-container',
@@ -44,7 +52,7 @@
           job:    context.jdText
         });
       } catch (e) {
-        console.log('failed',e);
+        console.log('failed', e);
       }
     })();
   </script>
