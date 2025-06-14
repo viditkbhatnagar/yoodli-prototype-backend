@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const multerPkg = require('multerPkg');
+const multerPkg = require('multer');
 const path = require('path');
 
 const upload = multerPkg({ storage: multerPkg.memoryStorage() });
