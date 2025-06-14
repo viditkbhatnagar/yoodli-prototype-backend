@@ -20,10 +20,6 @@
       <label>Conversation ID </label>
       <input id="cid" value="1933895643556687874" style="flex:1" />
     </div>
-    <div class="row">
-      <input id="resume" type="file" accept=".pdf,.txt,.doc,.docx" />
-      <input id="jd"     type="file" accept=".pdf,.txt,.doc,.docx" />
-    </div>
     <button id="start">Start Interview</button>
   </div>
   <div id="duix-container"></div>
@@ -43,26 +39,17 @@
       const conversationId = document.getElementById('cid').value.trim();
       if (!conversationId) return alert('Conversation-ID required');
 
-      // 1️⃣ gather files
-      const resumeFile = document.getElementById('resume').files[0];
-      const jdFile     = document.getElementById('jd').files[0];
-      if (!resumeFile || !jdFile) return alert('Please upload Resume and Job-Description');
-
-      // 2️⃣ upload to backend – receives parsed text, returns {resumeText, jdText}
-      const fd = new FormData();
-      fd.append('conversationId', conversationId);
-      fd.append('resume', resumeFile);
-      fd.append('jd',     jdFile);
+      // 1️⃣ fetch resume+JD context from backend
       let parsed;
       try {
-        const prep = await fetch('/api/upload', { method: 'POST', body: fd });
-        if (!prep.ok) throw new Error(await prep.text());
-        parsed = await prep.json();
+        const resp = await fetch('/api/context');
+        if (!resp.ok) throw new Error(`context api ${resp.status}`);
+        parsed = await resp.json();
       } catch (e) {
-        return alert('Upload failed: ' + e.message);
+        return alert('Failed to load context: ' + e.message);
       }
 
-      // 3️⃣ fetch sign
+      // 2️⃣ fetch sign
       let sign;
       try {
         sign = await getSign(conversationId);
@@ -70,7 +57,7 @@
         return alert('Failed to fetch sign: ' + e.message);
       }
 
-      // 4️⃣ initialize Duix with businessData from uploaded files
+      // 3️⃣ initialize Duix with businessData from context
       duix.on('initialSuccess', () => {
         duix.start({ openAsr: true }).catch(console.error);
       });
