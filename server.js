@@ -27,7 +27,8 @@ app.get('/api/duix/sign', (req, res) => {
 });
 
 // Fallback to serve index.html for any other route (SPA behavior)
-app.get('*', (req, res) => {
+// Serve index.html at root only
+app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
