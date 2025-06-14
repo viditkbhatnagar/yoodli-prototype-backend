@@ -1,4 +1,3 @@
-<!-- index.html (enhanced) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,60 +17,75 @@
   <div class="panel">
     <h2 style="margin-top:0">AI Interview Demo</h2>
     <div class="row">
-      <label>Conversation&nbsp;ID&nbsp;</label>
+      <label>Conversation ID </label>
       <input id="cid" value="1933895643556687874" style="flex:1" />
     </div>
     <div class="row">
-      <input id="resume"    type="file" accept=".pdf,.txt,.doc,.docx" />
-      <input id="jd"        type="file" accept=".pdf,.txt,.doc,.docx" />
+      <input id="resume" type="file" accept=".pdf,.txt,.doc,.docx" />
+      <input id="jd"     type="file" accept=".pdf,.txt,.doc,.docx" />
     </div>
     <button id="start">Start Interview</button>
   </div>
   <div id="duix-container"></div>
 
-<script type="module">
-const startBtn = document.getElementById('start');
-const duix     = new window.DUIX();
+  <script type="module">
+    const startBtn = document.getElementById('start');
+    const duix     = new window.DUIX();
 
-const getSign = async (cid)=>{
-  const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
-  if(!r.ok) throw new Error(await r.text());
-  return (await r.json()).sign;
-};
+    // Helper to fetch a fresh Duix sign
+    const getSign = async (cid) => {
+      const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
+      if (!r.ok) throw new Error(`sign api ${r.status}`);
+      return (await r.json()).sign;
+    };
 
-startBtn.onclick = async ()=>{
-  const conversationId = document.getElementById('cid').value.trim();
-  if(!conversationId) return alert('Conversation-ID required');
+    startBtn.onclick = async () => {
+      const conversationId = document.getElementById('cid').value.trim();
+      if (!conversationId) return alert('Conversation-ID required');
 
-  // 1️⃣ gather files
-  const resumeFile = document.getElementById('resume').files[0];
-  const jdFile     = document.getElementById('jd').files[0];
-  if(!resumeFile || !jdFile) return alert('Please upload Resume and Job-Description');
+      // 1️⃣ gather files
+      const resumeFile = document.getElementById('resume').files[0];
+      const jdFile     = document.getElementById('jd').files[0];
+      if (!resumeFile || !jdFile) return alert('Please upload Resume and Job-Description');
 
-  // 2️⃣ upload to backend – receives parsed text, returns {resumeText, jdText}
-  const fd = new FormData();
-  fd.append('resume', resumeFile);
-  fd.append('jd',     jdFile);
-  fd.append('conversationId', conversationId);
-  const prep = await fetch('/api/upload', {method:'POST',body:fd});
-  if(!prep.ok) return alert('upload failed');
-  const {resumeText,jdText} = await prep.json();
+      // 2️⃣ upload to backend – receives parsed text, returns {resumeText, jdText}
+      const fd = new FormData();
+      fd.append('conversationId', conversationId);
+      fd.append('resume', resumeFile);
+      fd.append('jd',     jdFile);
+      let parsed;
+      try {
+        const prep = await fetch('/api/upload', { method: 'POST', body: fd });
+        if (!prep.ok) throw new Error(await prep.text());
+        parsed = await prep.json();
+      } catch (e) {
+        return alert('Upload failed: ' + e.message);
+      }
 
-  // 3️⃣ fetch sign
-  const sign = await getSign(conversationId);
+      // 3️⃣ fetch sign
+      let sign;
+      try {
+        sign = await getSign(conversationId);
+      } catch (e) {
+        return alert('Failed to fetch sign: ' + e.message);
+      }
 
-  // 4️⃣ tell duix to inject the context BEFORE start
-  duix.on('initialSuccess', ()=>duix.start({openAsr:true}).catch(console.error));
+      // 4️⃣ initialize Duix with businessData from uploaded files
+      duix.on('initialSuccess', () => {
+        duix.start({ openAsr: true }).catch(console.error);
+      });
 
-  duix.init({
-    sign,
-    conversationId,
-    containerLable:'#duix-container',
-    platform:'duix.com',
-    // custom businessData becomes LLM context
-    businessData:{resume:resumeText,jd:jdText}
-  }).catch(console.error);
-};
-</script>
+      duix.init({
+        sign,
+        conversationId,
+        containerLable: '#duix-container',
+        platform: 'duix.com',
+        businessData: {
+          resume: parsed.resumeText,
+          jd:     parsed.jdText
+        }
+      }).catch(console.error);
+    };
+  </script>
 </body>
 </html>
