@@ -15,7 +15,8 @@
     /* --- read ?sign=…&cid=… from URL --- */
     const qs  = new URLSearchParams(location.search);
     const sign = qs.get('sign');
-    const conversationId = qs.get('cid');
+    // accept either "cid" or "conversationId" query param
+    const conversationId = qs.get('cid') || qs.get('conversationId');
     if (!sign || !conversationId) {
       document.body.textContent = 'Missing sign or conversationId';
       throw new Error('missing params');
@@ -35,7 +36,7 @@
 
     await duix.init({
       sign,
-      containerLable: '#avatar',
+      containerLabel: '#avatar',
       conversationId,
       platform: 'duix.com'
     });
