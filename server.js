@@ -1,4 +1,7 @@
 // server.js - modified to handle resume/jd upload
+// multer for handling file uploads
+const multer = require('multer');
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } }); // 5 MB max
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -17,26 +20,26 @@ app.use(express.json());
 app.use(express.static(path.resolve(__dirname)));
 
 // multer setup for parsing multipart/form-data
-const upload = multer();
+//const upload = multer();
 
 // upload endpoint for resume and job description
 app.post(
   '/api/upload',
-  upload.fields([{name:'resume'},{name:'jd'}]),
+  upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'jd', maxCount: 1 }]),
   (req, res) => {
     const { conversationId } = req.body;
     if (!conversationId) {
       return res.status(400).json({ error: 'Missing conversationId' });
     }
-    // read text from uploaded files
-    const resumeFile = req.files['resume']?.[0];
-    const jdFile     = req.files['jd']?.[0];
-    const resumeText = resumeFile ? resumeFile.buffer.toString('utf8') : '';
-    const jdText     = jdFile     ? jdFile.buffer.toString('utf8') : '';
-
-    // (Optional) store or process these texts before responding
-
-    res.json({ conversationId, resume: resumeText, jd: jdText });
+    const resumeFile = req.files?.resume?.[0];
+    const jdFile     = req.files?.jd?.[0];
+    if (!resumeFile || !jdFile) {
+      return res.status(400).json({ error: 'Both resume and JD files are required' });
+    }
+    // Simple text extraction for .txt/.md files
+    const resumeText = resumeFile.buffer.toString('utf8');
+    const jdText     = jdFile.buffer.toString('utf8');
+    res.json({ resumeText, jdText });
   }
 );
 
