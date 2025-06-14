@@ -4,51 +4,40 @@
   <meta charset="utf-8" />
   <title>AI Interview Avatar</title>
   <style>
-    body, html { margin:0; height:100%; font-family:Arial, sans-serif; background:#f7f7f7; }
-    #duix-container { width:100vw; height:100vh; }
+    body,html{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:#f7f7f7}
+    #duix-container{width:100vw;height:100vh}
   </style>
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
 </head>
 <body>
   <div id="duix-container"></div>
+
   <script>
-    // helper to read params from ?key=val
-    const getParam = name => new URLSearchParams(location.search).get(name);
-
-    (async () => {
-      const sign = getParam('sign');
-      const conversationId = getParam('conversationId');
+    window.addEventListener('DOMContentLoaded', () => {
+      // grab params
+      const params = new URLSearchParams(window.location.search);
+      const sign = params.get('sign');
+      const conversationId = params.get('conversationId');
       if (!sign || !conversationId) {
-        document.body.textContent = 'Missing sign or conversationId';
-        return;
+        return alert('Missing sign or conversationId in URL');
       }
 
-      const BASE = window.location.origin;
-      // fetch resume + JD
-      let context;
-      try {
-        const resp = await fetch(`${BASE}/api/context?conversationId=${conversationId}`);
-        context = await resp.json();
-      } catch (err) {
-        console.error('Failed to load context:', err);
-        document.body.textContent = 'Error loading context';
+      // init the avatar
+      if (typeof DUIX === 'undefined') {
+        console.error('DUIX SDK not loaded');
         return;
       }
-
-      try {
-        await Duix.init({
-          containerLable: '#duix-container',
-          sign,
-          conversationId,
-          resume: context.resumeText,
-          job:    context.jdText
-        });
-        console.log('DUIX.init succeeded');
-      } catch (e) {
-        console.error('DUIX.init failed:', e);
-        document.body.textContent = 'Failed to start interview';
-      }
-    })();
+      DUIX.init({
+        containerLable: '#duix-container',
+        sign,
+        conversationId
+      })
+      .then(() => console.log('DUIX initialized'))
+      .catch(err => {
+        console.error('DUIX.init error:', err);
+        alert('Failed to start interview: ' + err.message);
+      });
+    });
   </script>
 </body>
 </html>
