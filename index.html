@@ -1,151 +1,77 @@
+<!-- index.html (enhanced) -->
 <!DOCTYPE html>
-<html lang="zh">
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="expires" content="0" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>Duix Sdk Simple Example</title>
+  <meta charset="utf-8" />
+  <title>AI Interview Avatar – Upload Flow</title>
   <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .modal {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background-color: #fefefe;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 600px;
-      border-radius: 4px;
-    }
-
-    .container {
-      width: 100vw;
-      height: 100vh;
-    }
-
-    #duix-container { border: 2px dashed #2ecc71; }
-
-    .item {
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .item>div {
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .item>span {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .input {
-      background: #F2F3F5;
-      height: 40px;
-      line-height: 40px;
-      border: none;
-      outline: none;
-      border-radius: 2px;
-      padding: 0 8px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 4px;
-      width: 100%;
-      height: 40px;
-      background: #166AFF;
-      color: #fff;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .subtitle {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translate(-50%);
-      color: #000;
-      padding: 12px;
-      box-sizing: border-box;
-      text-align: center;
-      background-color: rgba(255,255, 255, 0.5);
-      border-radius: 12px;
-      visibility: hidden;
-    }
-    .subtitle:empty {
-      display: none;
-    }
+    body,html{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:#f7f7f7}
+    #duix-container{width:100vw;height:60vh;border:2px dashed #2ecc71;margin-bottom:12px}
+    .panel{max-width:640px;margin:12px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+    .row{display:flex;gap:12px;margin-bottom:14px}
+    input[type=file]{flex:1}
+    button{padding:10px 18px;border:none;border-radius:4px;background:#166aff;color:#fff;cursor:pointer}
   </style>
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
 </head>
-
 <body>
-  <!-- Container -->
-  <div id="duix-container" class="container"></div>
-  <div class="subtitle"></div>
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <div class="item">
-        <span>DEMO</span><br />
-        (Click “Start” — the sign is fetched automatically)
-      </div>
-      <div class="item">
-        <input class="input" id="conversationId" placeholder="please enter conversationId" value="1933895643556687874" />
-      </div>
-      <div class="item">
-        <button id="start" onclick="init()" class="btn">Start</button>
-      </div>
+  <div class="panel">
+    <h2 style="margin-top:0">AI Interview Demo</h2>
+    <div class="row">
+      <label>Conversation&nbsp;ID&nbsp;</label>
+      <input id="cid" value="1933895643556687874" style="flex:1" />
     </div>
+    <div class="row">
+      <input id="resume"    type="file" accept=".pdf,.txt,.doc,.docx" />
+      <input id="jd"        type="file" accept=".pdf,.txt,.doc,.docx" />
+    </div>
+    <button id="start">Start Interview</button>
   </div>
-  <script>
-    // The duix.js used for demonstration may not be the latest. Please install the latest sdk via npm
-    const duix = new window.DUIX()
-    async function init() {
-    const conversationId = document
-      .getElementById('conversationId').value.trim();
-    if (!conversationId) return alert('conversationId cannot be empty');
+  <div id="duix-container"></div>
 
-    /* 1️⃣  Get a fresh sign from your Node backend */
-    let sign;
-    try {
-      const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
-      if (!r.ok) throw new Error(`sign api ${r.status}`);
-      sign = (await r.json()).sign;
-    } catch (e) {
-      return alert('Failed to fetch sign: ' + e.message);
-    }
+<script type="module">
+const startBtn = document.getElementById('start');
+const duix     = new window.DUIX();
 
-    /* 2️⃣  Redirect to avatar.html with the sign + cid */
-    const params = new URLSearchParams({ sign, cid: conversationId });
-    location.href = `avatar.html?${params.toString()}`;
-  }
-  </script>
+const getSign = async (cid)=>{
+  const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
+  if(!r.ok) throw new Error(await r.text());
+  return (await r.json()).sign;
+};
+
+startBtn.onclick = async ()=>{
+  const conversationId = document.getElementById('cid').value.trim();
+  if(!conversationId) return alert('Conversation-ID required');
+
+  // 1️⃣ gather files
+  const resumeFile = document.getElementById('resume').files[0];
+  const jdFile     = document.getElementById('jd').files[0];
+  if(!resumeFile || !jdFile) return alert('Please upload Resume and Job-Description');
+
+  // 2️⃣ upload to backend – receives parsed text, returns {resumeText, jdText}
+  const fd = new FormData();
+  fd.append('resume', resumeFile);
+  fd.append('jd',     jdFile);
+  fd.append('conversationId', conversationId);
+  const prep = await fetch('/api/upload', {method:'POST',body:fd});
+  if(!prep.ok) return alert('upload failed');
+  const {resumeText,jdText} = await prep.json();
+
+  // 3️⃣ fetch sign
+  const sign = await getSign(conversationId);
+
+  // 4️⃣ tell duix to inject the context BEFORE start
+  duix.on('initialSuccess', ()=>duix.start({openAsr:true}).catch(console.error));
+
+  duix.init({
+    sign,
+    conversationId,
+    containerLable:'#duix-container',
+    platform:'duix.com',
+    // custom businessData becomes LLM context
+    businessData:{resume:resumeText,jd:jdText}
+  }).catch(console.error);
+};
+</script>
 </body>
-
 </html>
