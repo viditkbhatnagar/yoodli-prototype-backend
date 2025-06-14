@@ -4,16 +4,16 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
-const APP_ID = '1383575020709764640'; // your appId
+const APP_ID  = '1383575020709764640'; // your appId
 const APP_KEY = 'b7651b3c-bece-4fee-a13d-35ff37610498'; // your appKey
-const PORT = 3001;
+const PORT    = 3001;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve index.html and other static assets from project root
-app.use(express.static(path.join(__dirname)));(express.static(path.join(__dirname)));
+// Serve static files (index.html, js, css, etc.)
+app.use(express.static(path.join(__dirname)));
 
 // Sign endpoint
 app.get('/api/duix/sign', (req, res) => {
@@ -23,7 +23,7 @@ app.get('/api/duix/sign', (req, res) => {
   }
   // generate JWT token
   const payload = { appId: APP_ID, conversationId };
-  const sign = jwt.sign(payload, APP_KEY, { expiresIn: '15m' });
+  const sign    = jwt.sign(payload, APP_KEY, { expiresIn: '15m' });
   res.json({ sign, conversationId });
 });
 
