@@ -34,7 +34,7 @@
         document.body.textContent = 'Error loading context';
         return;
       }
-
+      const duix = new window.DUIX()
       try {
         await duix.init({
           containerLabel: '#duix-container',
