@@ -1,55 +1,45 @@
+// server.js  (minimal, JSON-only version)
 const express = require('express');
-const cors = require('cors');
-const path = require('path');
+const cors    = require('cors');
+const path    = require('path');
 
-
-const app = express();
+const app  = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json());                       // ← parse JSON
+app.use(express.static(path.join(__dirname))); // serve index / avatar
 
-// serve static client files
-app.use(express.static(path.join(__dirname)));  // serve index.html, avatar.html, etc.
-
-// --- Duix sign endpoint ---
+// ---------- SIGN ENDPOINT ----------
 app.get('/api/duix/sign', (req, res) => {
-const { conversationId } = req.query;
-if (!conversationId) return res.status(400).json({ error: 'conversationId required' });
-
-// generate sign with your credentials
-const sign = generateSign({ conversationId });
-res.json({ sign, conversationId });
+  const { conversationId } = req.query;
+  if (!conversationId) return res.status(400).json({ error: 'conversationId required' });
+  res.json({ sign: generateSign({ conversationId }), conversationId });
 });
 
-// --- Upload resume/jd endpoint ---
+// ---------- JSON UPLOAD ENDPOINT ----------
 app.post('/api/upload', (req, res) => {
   const { conversationId, resumeText, jdText } = req.body;
   if (!conversationId || !resumeText || !jdText) {
-    return res.status(400).json({ error: 'conversationId, resumeText and jdText are required' });
+    return res.status(400).json({ error: 'conversationId, resumeText, jdText required' });
   }
-  // TODO: store or process these texts as needed
-  res.json({ conversationId, resumeText, jdText });
+  // TODO: store in DB / send to Duix / etc.
+  res.json({ ok: true, conversationId });
 });
 
-const port = process.env.PORT || 3001;
-app.listen(port, '0.0.0.0', () => console.log(`API listening on http://0.0.0.0:${port}`));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => console.log(`API listening on http://0.0.0.0:${PORT}`));
 
-// Helper to generate JWT-like sign (dummy example)
+// ---- dummy sign helper (replace with real credentials) ----
 function generateSign({ conversationId }) {
-// insert your real appId/appKey here or pull from env
-const appId = '1383575020709744640';
-const appKey = 'b7651b3c-bece-4fee-a13d-35ff37610498';
-const payload = {
-appId,
-conversationId,
-iat: Math.floor(Date.now() / 1000),
-exp: Math.floor(Date.now() / 1000) + 60 * 60,
-};
-// simplistic base64 + hmac (replace with real signing)
-const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-const body = Buffer.from(JSON.stringify(payload)).toString('base64');
-const signature = require('crypto')
-.createHmac('sha256', appKey)
-.update(`${header}.${body}`)
-.digest('base64');
-return `${header}.${body}.${signature}`;
+  const appId  = '1383575020709744640';
+  const appKey = 'b7651b3c-bece-4fee-a13d-35ff37610498';
+  const payload = {
+    appId, conversationId,
+    iat: Math.floor(Date.now()/1000),
+    exp: Math.floor(Date.now()/1000)+3600,
+  };
+  const header = Buffer.from(JSON.stringify({ alg:'HS256',typ:'JWT'})).toString('base64url');
+  const body   = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = require('crypto').createHmac('sha256', appKey)
+                     .update(`${header}.${body}`).digest('base64url');
+  return `${header}.${body}.${signature}`;
 }
