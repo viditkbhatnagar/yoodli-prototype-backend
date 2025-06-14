@@ -3,7 +3,7 @@ const cors = require('cors');
 const multerPkg = require('multer');
 const path = require('path');
 
-const upload = multerPkg({ storage: multer.memoryStorage() });
+const upload = multerPkg({ storage: multerPkg.memoryStorage() });
 
 const app = express();
 app.use(cors());
