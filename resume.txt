@@ -1,0 +1,32 @@
+VIDIT BHATNAGAR  
+Software Engineer — Conversational AI  
+Noida, India • bhatnagar007vidit@gmail.com • +91-74249-61266 • linkedin.com/in/vidit-bhatnagar
+
+SUMMARY  
+Full-stack developer (Node.js, React) turned Conversational-AI specialist with 3 + years designing, training and deploying enterprise chatbots on Azure and Slack. Proven at translating vague business goals into production NLP pipelines using LUIS, Bot Framework, Cosmos DB and Docker. Strong focus on developer experience, test automation and clean API design.
+
+TECHNICAL SKILLS  
+• Languages & Runtime  – JavaScript / TypeScript, Node.js, Python, SQL, Bash  
+• AI / NLP             – Azure LUIS, OpenAI API, Rasa NLU, MS Graph, LangChain  
+• Cloud & DevOps       – Azure Functions, AKS, CI/CD (GitHub Actions, Azure Pipelines)  
+• Datastores           – Cosmos DB, PostgreSQL, Redis, MongoDB  
+• Tools & Frameworks   – Microsoft Bot Framework, Express, Swagger, Docker, Kubernetes
+
+EXPERIENCE  
+Celebal Technologies — Associate, Modern Workplace & Chatbot      Mar 2022 – Present  
+• Designed two MS Teams chatbots that handle 1 K+ daily leave & expense queries; cut HR email load by 45 %.  
+• Built NLU models (LUIS) reaching 92 % intent accuracy for multilingual utterances.  
+• Containerised bot stack (Node + Bot Framework) for AKS; reduced Azure bill 30 % via autoscaling.  
+• Authored adaptive cards & Swagger docs used by five downstream teams.  
+• Mentored 4 interns on REST standards, Git flow and test-driven development.
+
+Notable Projects  
+— **User Booking API** : 20 crud endpoints + Swagger; supports coupons, inventory & calendar rules.  
+— **Crypto Dashboard** : React + CoinGecko API; real-time charts, deployed on Netlify.  
+
+EDUCATION  
+B.Tech Computer Science — Swami Keshvanand Institute of Technology, Jaipur (2018-2022)  
+SGPA 8.16 / 10
+
+INTERESTS  
+Cricket • Street photography • OSS contributions (express-jwt, docs PRs)

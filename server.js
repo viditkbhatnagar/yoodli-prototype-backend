@@ -1,9 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const multerPkg = require('multer');
 const path = require('path');
 
-const upload = multerPkg({ storage: multerPkg.memoryStorage() });
 
 const app = express();
 app.use(cors());
@@ -23,13 +21,13 @@ res.json({ sign, conversationId });
 });
 
 // --- Upload resume/jd endpoint ---
-app.post('/api/upload', upload.fields([{ name: 'resume' }, { name: 'jd' }]), (req, res) => {
-const { conversationId } = req.body;
-const resumeText = req.files.resume[0].buffer.toString('utf8');
-const jdText = req.files.jd[0].buffer.toString('utf8');
-
-// TODO: store or process these texts as needed
-res.json({ conversationId, resumeText, jdText });
+app.post('/api/upload', (req, res) => {
+  const { conversationId, resumeText, jdText } = req.body;
+  if (!conversationId || !resumeText || !jdText) {
+    return res.status(400).json({ error: 'conversationId, resumeText and jdText are required' });
+  }
+  // TODO: store or process these texts as needed
+  res.json({ conversationId, resumeText, jdText });
 });
 
 const port = process.env.PORT || 3001;

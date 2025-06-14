@@ -1,0 +1,29 @@
+JOB TITLE: AI Engineer — Conversational Interfaces
+
+ABOUT THE ROLE  
+We’re building the next-generation virtual interview coach. Your job is to design, train and ship AI models that understand résumés, job descriptions and spoken answers in real time. You’ll sit inside the Core AI team and collaborate with product, design and backend engineers.
+
+RESPONSIBILITIES  
+• Prototype and productionize NLP / LLM pipelines (embedding search, RAG, prompt-engineering).  
+• Fine-tune speech-to-text and text-to-speech models for Indian English accents.  
+• Build evaluation harnesses: intent accuracy, question diversity, hallucination score.  
+• Package models behind REST / gRPC micro-services; automate with Docker & Kubernetes.  
+• Monitor drift and trigger continuous fine-tuning using feedback from tens of thousands of mock-interviews.
+
+REQUIREMENTS  
+• 3+ years in ML or AI, with at least one year on conversational AI or chatbots.  
+• Hands-on with Python (PyTorch or TensorFlow) **and** a modern JS runtime (Node or Deno).  
+• Experience integrating Azure Cognitive Services, OpenAI or similar LLM providers.  
+• Familiar with vector databases (Pinecone, Weaviate) and retrieval-augmented generation.  
+• Comfortable with cloud infra (AWS or Azure), CI/CD and IaC tools (Terraform).  
+• Excellent written communication; able to turn research papers into production roadmaps.
+
+NICE TO HAVE  
+• Published research / side-projects in speech synthesis or prosody modelling.  
+• Kubernetes on AKS or EKS at scale (> 50 nodes).  
+• Contributions to open-source NLP libraries.
+
+BENEFITS  
+• Remote-first team with quarterly meet-ups in Bangalore or Singapore.  
+• Annual L&D budget ₹ 1 Lakh.  
+• ESOPs & performance bonuses.  
