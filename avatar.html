@@ -13,7 +13,7 @@
   <div id="duix-container"></div>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
+    window.onload = function() {
       // grab params
       const params = new URLSearchParams(window.location.search);
       const sign = params.get('sign');
@@ -27,6 +27,13 @@
         console.error('DUIX SDK not loaded');
         return;
       }
+      
+      // Check if DUIX.init is a function
+      if (typeof DUIX.init !== 'function') {
+        console.error('DUIX.init is not a function');
+        return alert('Failed to start interview: DUIX.init is not a function');
+      }
+      
       DUIX.init({
         containerLable: '#duix-container',
         sign,
@@ -37,7 +44,7 @@
         console.error('DUIX.init error:', err);
         alert('Failed to start interview: ' + err.message);
       });
-    });
+    };
   </script>
 </body>
 </html>
