@@ -24,53 +24,17 @@
   </div>
   <div id="duix-container"></div>
 
-  <script type="module">
+  <script>
     const API_BASE = 'https://ac68-16-16-206-49.ngrok-free.app';
-    const startBtn = document.getElementById('start');
-    const duix     = new window.DUIX();
+    const startBtn  = document.getElementById('start');
 
-    // Helper to fetch a fresh Duix sign
-    const getSign = async (cid) => {
-      const r = await fetch(`${API_BASE}/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
-      if (!r.ok) throw new Error(`sign api ${r.status}`);
-      return (await r.json()).sign;
-    };
-
-    startBtn.onclick = async () => {
+    startBtn.onclick = () => {
       const conversationId = document.getElementById('cid').value.trim();
-      if (!conversationId) return alert('Conversation-ID required');
-
-      // 1️⃣ fetch resume+JD context from backend
-      let parsed;
-      try {
-        const resp = await fetch(`${API_BASE}/api/context`);
-        if (!resp.ok) throw new Error(`context api ${resp.status}`);
-        parsed = await resp.json();
-      } catch (e) {
-        return alert('Failed to load context: ' + e.message);
+      if (!conversationId) {
+        return alert('Conversation-ID required');
       }
-
-      // 2️⃣ fetch sign
-      let sign;
-      try {
-        sign = await getSign(conversationId);
-      } catch (e) {
-        return alert('Failed to fetch sign: ' + e.message);
-      }
-
-      // 3️⃣ initialize Duix with businessData from context
-      duix.on('initialSuccess', () => {
-        duix.start({ openAsr: true }).catch(console.error);
-      });
-
-      duix.init({
-        sign,
-        conversationId,
-        // note: Duix SDK expects the typo 'containerLable'
-        containerLable: '#duix-container',
-        platform: 'duix.com',
-        businessData: parsed
-      }).catch(console.error);
+      // Redirect to avatar.html, passing conversationId as a query parameter
+      window.location.href = `avatar.html?conversationId=${encodeURIComponent(conversationId)}`;
     };
   </script>
 </body>
