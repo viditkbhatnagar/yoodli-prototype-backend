@@ -13,3 +13,25 @@ app.use(cors());
 app.use(express.json());
 
 // Serve index.html and other static assets from project root
+app.use(express.static(path.join(__dirname)));(express.static(path.join(__dirname)));
+
+// Sign endpoint
+app.get('/api/duix/sign', (req, res) => {
+  const { conversationId } = req.query;
+  if (!conversationId) {
+    return res.status(400).json({ error: "Missing conversationId" });
+  }
+  // generate JWT token
+  const payload = { appId: APP_ID, conversationId };
+  const sign = jwt.sign(payload, APP_KEY, { expiresIn: '15m' });
+  res.json({ sign, conversationId });
+});
+
+// Fallback: send index.html for any other route (SPA behavior)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API listening on http://0.0.0.0:${PORT}`);
+});
