@@ -18,10 +18,6 @@ app.use(express.json());
 // static files
 app.use(express.static(path.resolve(__dirname)));
 
-// multer setup for parsing multipart/form-data
-//const upload = multer();
-
-// upload endpoint for resume and job description
 app.post(
   '/api/upload',
   upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'jd', maxCount: 1 }]),
