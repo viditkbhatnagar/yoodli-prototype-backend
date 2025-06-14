@@ -13,22 +13,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// serve client files (index.html, avatar.html, etc.)
+// serve the static client pages
 app.use(express.static(path.join(__dirname)));
 
-// preload your resume.txt and jd.txt once at startup
+// preload the text files
 const resumeText = fs.readFileSync(path.join(__dirname, 'resume.txt'), 'utf8');
 const jdText     = fs.readFileSync(path.join(__dirname, 'jd.txt'),    'utf8');
 
-// --- Duix sign endpoint (unchanged) ---
+// Duix JWT sign endpoint
 app.get('/api/duix/sign', (req, res) => {
   const { conversationId } = req.query;
-  if (!conversationId) return res.status(400).json({ error: 'conversationId required' });
+  if (!conversationId) {
+    return res.status(400).json({ error: 'conversationId required' });
+  }
   const sign = generateSign({ conversationId });
   res.json({ sign, conversationId });
 });
 
-// --- NEW: serve your resume + JD text ---
+// New context endpoint
 app.get('/api/context', (req, res) => {
   res.json({ resumeText, jdText });
 });
