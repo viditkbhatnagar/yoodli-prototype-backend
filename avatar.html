@@ -27,7 +27,7 @@
       // fetch resume + JD
       let context;
       try {
-        const resp = await fetch(`${BASE}/api/context`);
+        const resp = await fetch(`${BASE}/api/context?conversationId=${conversationId}`);
         context = await resp.json();
       } catch (err) {
         console.error('Failed to load context:', err);
@@ -36,7 +36,7 @@
       }
 
       try {
-        await DUIX.init({
+        await Duix.init({
           containerLable: '#duix-container',
           sign,
           conversationId,
