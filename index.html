@@ -134,9 +134,7 @@
     /* 1️⃣  Get a fresh sign from your Node backend */
     let sign;
     try {
-      const r = await fetch(
-        `http://localhost:3001/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`
-      );
+      const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
       if (!r.ok) throw new Error(`sign api ${r.status}`);
       sign = (await r.json()).sign;
     } catch (e) {
