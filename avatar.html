@@ -2,48 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Duix Avatar</title>
+  <title>AI Interview Avatar</title>
   <style>
-    body,html {margin:0;height:100%;}
-    #avatar {width:100vw;height:100vh;}
+    body,html{margin:0;height:100%;font-family:Arial,sans-serif;background:#f7f7f7}
+    #duix-container{width:100vw;height:100vh}
   </style>
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
 </head>
 <body>
-  <div id="avatar" class="container"></div>
-  <script type="module">
-    /* --- read ?sign=…&cid=… from URL --- */
-    const qs  = new URLSearchParams(location.search);
-    const sign = qs.get('sign');
-    // accept either "cid" or "conversationId" query param
-    const conversationId = qs.get('cid') || qs.get('conversationId');
+  <div id="duix-container"></div>
+  <script>
+    const API_BASE = 'https://ac68-16-16-206-49.ngrok-free.app'
+    const params = new URLSearchParams(window.location.search)
+    const sign = params.get('sign')
+    const conversationId = params.get('conversationId')
+
     if (!sign || !conversationId) {
-      document.body.textContent = 'Missing sign or conversationId';
-      throw new Error('missing params');
+      document.body.innerHTML = '<p style="padding:2rem;">Missing sign or conversationId</p>'
+      throw new Error('avatar.html: missing params')
     }
 
-    /* --- fire up Duix --- */
-    const duix = new window.DUIX();
-    duix.on('error', console.error);
-
-    // startAvatar helper
-    const startAvatar = () => duix.start({ openAsr: true }).catch(console.error);
-
-    duix.on('initialSuccess', startAvatar);
-    duix.on('intialSucccess', startAvatar); // legacy
-
-    duix.on('speakSection', d => console.log('[avatar]', d.text));
-
-    await duix.init({
+    DUIX.init({
+      // this must match the div id above:
+      containerLabel: 'duix-container',
+      // your JWT
       sign,
-      containerLable: '#avatar',
-      conversationId,
-      platform: 'duix.com'
-    });
-
-    setTimeout(() => {
-      if (!duix.isStarted?.()) startAvatar();
-    }, 1000);
+      // point at your backend’s /api/context route
+      // it must return { resumeText: string, jdText: string }
+      contextUrl: `${API_BASE}/api/context?conversationId=${encodeURIComponent(conversationId)}`,
+    }).then(() => {
+      console.log('DUIX.init succeeded')
+    }).catch(err => {
+      console.error('DUIX.init failed:', err)
+    })
   </script>
 </body>
 </html>
