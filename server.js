@@ -4,7 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
-const APP_ID  = '1383575020709764640'; // your appId
+const APP_ID  = '1383575020709744640'; // your appId  (fixed digit order)
 const APP_KEY = 'b7651b3c-bece-4fee-a13d-35ff37610498'; // your appKey
 const PORT    = process.env.PORT || 3001;
 
