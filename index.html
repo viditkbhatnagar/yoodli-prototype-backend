@@ -17,44 +17,39 @@
   <div class="panel">
     <h2 style="margin-top:0">AI Interview Demo</h2>
     <div class="row">
-      <label>Conversation ID </label>
+      <label>Conversation ID </label>
       <input id="cid" value="1933895643556687874" style="flex:1" />
     </div>
     <button id="start">Start Interview</button>
   </div>
   <div id="duix-container"></div>
 
-</div>
-
-  <script>
+  <script type="module">
     const startBtn = document.getElementById('start');
-    const duix = new window.DUIX();
-    const API = window.location.origin;
+    const duix     = new window.DUIX();
 
-    async function getSign(cid) {
-      const res = await fetch(`${API}/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
-      if (!res.ok) throw new Error(`Sign API error: ${res.status}`);
-      const { sign } = await res.json();
-      return sign;
-    }
+    // Helper to fetch a fresh Duix sign
+    const getSign = async (cid) => {
+      const r = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(cid)}`);
+      if (!r.ok) throw new Error(`sign api ${r.status}`);
+      return (await r.json()).sign;
+    };
 
-    startBtn.addEventListener('click', async () => {
+    startBtn.onclick = async () => {
       const conversationId = document.getElementById('cid').value.trim();
-      if (!conversationId) {
-        return alert('Conversation ID required');
-      }
+      if (!conversationId) return alert('Conversation-ID required');
 
-      // 1️⃣ Load resume + JD context
-      let context;
+      // 1️⃣ fetch resume+JD context from backend
+      let parsed;
       try {
-        const resp = await fetch(`${API}/api/context`);
-        if (!resp.ok) throw new Error(`Context API error: ${resp.status}`);
-        context = await resp.json();
+        const resp = await fetch('/api/context');
+        if (!resp.ok) throw new Error(`context api ${resp.status}`);
+        parsed = await resp.json();
       } catch (e) {
         return alert('Failed to load context: ' + e.message);
       }
 
-      // 2️⃣ Fetch Duix sign
+      // 2️⃣ fetch sign
       let sign;
       try {
         sign = await getSign(conversationId);
@@ -62,21 +57,20 @@
         return alert('Failed to fetch sign: ' + e.message);
       }
 
-      // 3️⃣ Initialize and start Duix
+      // 3️⃣ initialize Duix with businessData from context
       duix.on('initialSuccess', () => {
         duix.start({ openAsr: true }).catch(console.error);
       });
 
       duix.init({
-        containerLable: 'duix-container',
-        appKey: sign,
+        sign,
         conversationId,
-        businessData: {
-          resume: context.resumeText,
-          jd:     context.jdText
-        }
-      });
-    });
+        // note: Duix SDK expects the typo 'containerLable'
+        containerLable: '#duix-container',
+        platform: 'duix.com',
+        businessData: parsed
+      }).catch(console.error);
+    };
   </script>
 </body>
 </html>
