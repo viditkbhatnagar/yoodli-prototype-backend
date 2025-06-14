@@ -7,8 +7,8 @@ const path    = require('path');
 const cors    = require('cors');
 
 // ─── Your Duix credentials ──────────────────────────────────────────────
-const appId  = '1383256862706765824';
-const appKey = '307b5d12-366c-4326-81ff-7b3d1f886f13';
+const appId  = '1383575020709744640';
+const appKey = 'b7651b3c-bece-4fee-a13d-35ff37610498';
 // ────────────────────────────────────────────────────────────────────────
 
 
