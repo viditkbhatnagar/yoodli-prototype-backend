@@ -1,6 +1,4 @@
-// server.js - modified to handle resume/jd upload
-// multer for handling file uploads
-const multer = require('multer');
+const multer = require('multer')
 const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } }); // 5 MB max
 const express = require('express');
 const cors = require('cors');
