@@ -14,8 +14,8 @@ function base64url(input) {
     .replace(/\//g, '_');
 }
 
-const APP_ID  = '1383575020709744640';
-const APP_KEY = 'b7651b3c-bece-4fee-a13d-35ff37610498';
+const APP_ID  = '1383666241390120960';
+const APP_KEY = '7f039d19-1885-4577-9794-28892924bab9';
 const PORT    = process.env.PORT || 3001;
 
 const app = express();
