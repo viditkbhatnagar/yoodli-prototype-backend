@@ -28,13 +28,20 @@
     const API_BASE = 'https://ac68-16-16-206-49.ngrok-free.app';
     const startBtn  = document.getElementById('start');
 
-    startBtn.onclick = () => {
+    startBtn.onclick = async () => {
       const conversationId = document.getElementById('cid').value.trim();
       if (!conversationId) {
         return alert('Conversation-ID required');
       }
-      // Redirect to avatar.html, passing conversationId as a query parameter
-      window.location.href = `avatar.html?conversationId=${encodeURIComponent(conversationId)}`;
+      try {
+        const resp = await fetch(`${API_BASE}/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
+        const { sign } = await resp.json();
+        if (!sign) throw new Error('No sign returned');
+        window.location.href = `avatar.html?sign=${encodeURIComponent(sign)}&conversationId=${encodeURIComponent(conversationId)}`;
+      } catch (e) {
+        console.error(e);
+        alert('Failed to fetch sign: ' + e.message);
+      }
     };
   </script>
 </body>
