@@ -4,37 +4,52 @@
   <meta charset="utf-8" />
   <title>AI Interview Avatar</title>
   <style>
-    body,html{margin:0;height:100%;font-family:Arial,sans-serif;background:#f7f7f7}
-    #duix-container{width:100vw;height:100vh}
+    body, html {
+      margin: 0;
+      height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+    }
+    #duix-container {
+      width: 100vw;
+      height: 100vh;
+    }
   </style>
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
 </head>
 <body>
   <div id="duix-container"></div>
-  <script>
-    const API_BASE = 'https://ac68-16-16-206-49.ngrok-free.app'
-    const params = new URLSearchParams(window.location.search)
-    const sign = params.get('sign')
-    const conversationId = params.get('conversationId')
 
-    if (!sign || !conversationId) {
-      document.body.innerHTML = '<p style="padding:2rem;">Missing sign or conversationId</p>'
-      throw new Error('avatar.html: missing params')
+  <script>
+    // Utility to pull params
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
     }
 
+    const sign = getParam('sign');
+    const conversationId = getParam('conversationId');
+    if (!sign || !conversationId) {
+      document.body.innerHTML = '<p style="padding:20px;color:red">Missing sign or conversationId</p>';
+      throw new Error('Missing sign or conversationId');
+    }
+
+    // Build the context endpoint URL
+    const contextUrl = new URL('/api/context', window.location.origin);
+    contextUrl.searchParams.set('conversationId', conversationId);
+
+    // Initialize Duix
     DUIX.init({
-      // this must match the div id above:
-      containerLabel: 'duix-container',
-      // your JWT
+      containerLable: 'duix-container',
       sign,
-      // point at your backend’s /api/context route
-      // it must return { resumeText: string, jdText: string }
-      contextUrl: `${API_BASE}/api/context?conversationId=${encodeURIComponent(conversationId)}`,
-    }).then(() => {
-      console.log('DUIX.init succeeded')
+      conversationId,
+      contextUrl: contextUrl.toString()
+    }).then(session => {
+      console.log('DUIX init succeeded', session);
     }).catch(err => {
-      console.error('DUIX.init failed:', err)
-    })
+      console.error('DUIX.init failed', err);
+      document.body.innerHTML = '<p style="padding:20px;color:red">Failed to start interview. See console.</p>';
+    });
   </script>
 </body>
 </html>
