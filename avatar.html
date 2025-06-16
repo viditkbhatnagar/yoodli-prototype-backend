@@ -14,15 +14,31 @@
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
 </head>
 
+<!-- avatar.html (essentials only) -->
 <body>
-  <!-- DUIX will render inside this element once the calling page runs duix.init({...}) -->
-  <div id="duix-container"></div>
+  <div id="duix-container" style="width:100vw;height:100vh"></div>
 
-  <!-- Optional safety-net: show a warning if the SDK script failed to load -->
+  <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
   <script>
-    if (!window.duix && !window.DUIX) {
-      document.body.textContent = 'DUIX SDK failed to load – check network/dev-tools.';
-    }
+    (async () => {
+      const qs  = new URLSearchParams(location.search);
+      const sign = qs.get('sign');
+      const cid  = qs.get('conversationId');
+      if (!sign || !cid) { document.body.textContent = 'Missing params'; return; }
+
+      await duix.ready;               // wait for SDK to attach itself
+      console.log('duix ready');
+
+      await duix.init({
+        sign,
+        conversationId: cid,
+        containerLable: 'duix-container'
+      });
+      console.log('duix.init done');
+    })().catch(e => {
+      console.error(e);
+      document.body.textContent = 'DUIX SDK failed: ' + e.message;
+    });
   </script>
 </body>
 </html>
