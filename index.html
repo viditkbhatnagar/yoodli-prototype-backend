@@ -35,6 +35,7 @@
         const resp = await fetch(`${API_BASE}/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
         const { sign } = await resp.json();
         if (!sign) throw new Error('No sign returned');
+        const duix = window.duix;
         duix.init({
           appId: '1377185422953811968',
           appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
