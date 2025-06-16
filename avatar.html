@@ -15,7 +15,7 @@
 <body>
   <div id="duix-container"></div>
 
-  <script>
+  <script type="module">
     /* ---------- helpers ------------------------------------------------ */
     const getParam = k => new URLSearchParams(location.search).get(k);
 
@@ -30,13 +30,23 @@
       }
 
       /**
-       * 0.2.x of the DUIX browser SDK sometimes ships as an ESM bundle
-       * (export‑default) and sometimes as a UMD global.
-       * Grab whichever surface is actually present, then verify it really
-       * has an `init()` method before proceeding.
+       * DUIX 0.2.x is published in two different flavours:
+       *   • UMD bundle that exposes **window.duix**  (or window.DUIX)
+       *   • ESM bundle that must be imported dynamically
+       *
+       * We try the cheap UMD‑style global first; if it isn’t present we
+       * lazily `import()` the SDK URL which gives us an ES module namespace.
        */
-      // Grab the global DUIX object (UMD)
-      const sdk = window.duix || window.DUIX;
+      let sdk = self.duix || self.DUIX;
+
+      if (!sdk) {
+        try {
+          const mod = await import('https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js');
+          sdk = mod.default || mod.duix || mod.DUIX || mod;
+        } catch (err) {
+          console.error('Failed to import DUIX SDK module:', err);
+        }
+      }
 
       if (!sdk || typeof sdk.init !== 'function') {
         console.error('DUIX SDK object not found or missing init():', sdk);
@@ -48,8 +58,7 @@
         await sdk.init({
           appId          : '1377185422953811968',
           appKey         : '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
-          /**  Note the correct key is *containerLabel* (two Ls)  */
-          containerLabel : 'duix-container',
+          containerLabel : 'duix-container',   // <- two Ls in *Label*
           sign,
           conversationId
         });
