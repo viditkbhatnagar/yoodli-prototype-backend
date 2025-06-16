@@ -2,45 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AI Interview Avatar</title>
+  <title>AI Interview Demo</title>
   <style>
-    body,html{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:#f7f7f7}
-    #duix-container{width:100vw;height:60vh;border:2px dashed #2ecc71;margin-bottom:12px}
+    body,html{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;background:#f7f7f7;height:100%}
+    .card{width:90%;max-width:420px;margin:32px auto;padding:28px;border:1px solid #ddd;border-radius:6px;background:#fff}
+    .card h1{margin-top:0;font-size:24px}
+    label{display:block;margin-bottom:6px;font-weight:600}
+    input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+    button{margin-top:16px;padding:10px 18px;font-size:14px;color:#fff;background:#0066ff;border:none;border-radius:4px;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
   </style>
-  <script src="https://cdn.guiji.ai/duix/sdk/0.2.1/duix.js"></script>
 </head>
 <body>
-  <div id="duix-container"></div>
+  <div class="card">
+    <h1>AI Interview Demo</h1>
 
-  <!-- avatar bootstrap -->
+    <label for="cid">Conversation ID</label>
+    <input id="cid" placeholder="enter / keep default" value="1934570215264169986"/>
+
+    <button id="startBtn">Start Interview</button>
+  </div>
+
   <script>
-    // Pull query‑params
-    const params          = new URLSearchParams(location.search);
-    const sign            = params.get('sign');
-    const conversationId  = params.get('conversationId');
+    const btn  = document.getElementById('startBtn');
+    const cidI = document.getElementById('cid');
 
-    if (!sign || !conversationId) {
-      document.body.textContent = 'Missing sign or conversationId';
-      throw new Error('missing params');
-    }
+    btn.addEventListener('click', async () => {
+      const conversationId = cidI.value.trim();
+      if (!conversationId) {
+        alert('Please enter a conversationId'); return;
+      }
 
-    // Ensure the SDK really loaded
-    if (!window.DUIX) {
-      document.body.textContent = 'DUIX SDK failed to load';
-      throw new Error('DUIX SDK not present');
-    }
+      btn.disabled = true; btn.textContent = 'Loading…';
 
-    // Spin up the avatar
-    window.DUIX.init({
-      appId:  '1377185422953811968',
-      appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
-      sign,
-      conversationId,
-      container: document.getElementById('duix-container')
-    })
-    .catch(err => {
-      console.error('duix.init failed:', err);
-      document.body.textContent = 'Failed to start interview';
+      try {
+        const r   = await fetch(`/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const { sign } = await r.json();
+        if (!sign)     throw new Error('sign not returned');
+
+        // jump to the avatar page
+        location.href = `avatar.html?sign=${encodeURIComponent(sign)}&conversationId=${encodeURIComponent(conversationId)}`;
+      } catch (e) {
+        console.error(e);
+        alert('Failed to fetch sign: ' + e.message);
+        btn.disabled = false; btn.textContent = 'Start Interview';
+      }
     });
   </script>
 </body>
