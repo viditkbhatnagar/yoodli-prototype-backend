@@ -35,11 +35,8 @@
        * Grab whichever surface is actually present, then verify it really
        * has an `init()` method before proceeding.
        */
-      const sdk =
-        window.duix?.default   ??   // ESM (lower‑case, default export)
-        window.DUIX?.default   ??   // ESM (upper‑case, default export)
-        window.duix            ??   // UMD (lower‑case global)
-        window.DUIX;                // UMD (upper‑case global)
+      // Grab the global DUIX object (UMD)
+      const sdk = window.duix || window.DUIX;
 
       if (!sdk || typeof sdk.init !== 'function') {
         console.error('DUIX SDK object not found or missing init():', sdk);
