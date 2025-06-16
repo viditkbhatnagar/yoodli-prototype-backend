@@ -5,68 +5,24 @@
   <title>AI Interview Avatar</title>
 
   <style>
-    html,body{margin:0;height:100%;background:#f7f7f7;font-family:Arial,helvetica,sans-serif}
-    #duix-container{width:100vw;height:100vh}
+    /* fill the whole viewport */
+    html,body { margin:0; height:100%; background:#f7f7f7; font-family:Arial,Helvetica,sans-serif; }
+    #duix-container { width:100vw; height:100vh; }
   </style>
 
-  <!-- DUIX browser SDK -->
+  <!-- DUIX SDK (just loaded, not initialised here) -->
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
 </head>
+
 <body>
+  <!-- DUIX will render inside this element once the calling page runs duix.init({...}) -->
   <div id="duix-container"></div>
 
-  <script type="module">
-    /* ---------- helpers ------------------------------------------------ */
-    const getParam = k => new URLSearchParams(location.search).get(k);
-
-    /* ---------- bootstrap --------------------------------------------- */
-    (async () => {
-      const sign           = getParam('sign');
-      const conversationId = getParam('conversationId');
-
-      if (!sign || !conversationId) {
-        document.body.textContent = 'Missing sign or conversationId';
-        return;
-      }
-
-      /**
-       * DUIX 0.2.x is published in two different flavours:
-       *   • UMD bundle that exposes **window.duix**  (or window.DUIX)
-       *   • ESM bundle that must be imported dynamically
-       *
-       * We try the cheap UMD‑style global first; if it isn’t present we
-       * lazily `import()` the SDK URL which gives us an ES module namespace.
-       */
-      let sdk = self.duix || self.DUIX;
-
-      if (!sdk) {
-        try {
-          const mod = await import('https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js');
-          sdk = mod.default || mod.duix || mod.DUIX || mod;
-        } catch (err) {
-          console.error('Failed to import DUIX SDK module:', err);
-        }
-      }
-
-      if (!sdk || typeof sdk.init !== 'function') {
-        console.error('DUIX SDK object not found or missing init():', sdk);
-        document.body.textContent = 'DUIX SDK failed to load';
-        return;
-      }
-
-      try {
-        await sdk.init({
-          appId          : '1377185422953811968',
-          appKey         : '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
-          containerLabel : 'duix-container',   // <- two Ls in *Label*
-          sign,
-          conversationId
-        });
-      } catch (err) {
-        console.error('duix.init failed:', err);
-        document.body.textContent = 'Failed to start interview';
-      }
-    })();
+  <!-- Optional safety-net: show a warning if the SDK script failed to load -->
+  <script>
+    if (!window.duix && !window.DUIX) {
+      document.body.textContent = 'DUIX SDK failed to load – check network/dev-tools.';
+    }
   </script>
 </body>
 </html>
