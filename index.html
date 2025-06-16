@@ -30,17 +30,21 @@
 
     startBtn.onclick = async () => {
       const conversationId = document.getElementById('cid').value.trim();
-      if (!conversationId) {
-        return alert('Conversation-ID required');
-      }
+      if (!conversationId) return alert('Conversation-ID required');
       try {
         const resp = await fetch(`${API_BASE}/api/duix/sign?conversationId=${encodeURIComponent(conversationId)}`);
         const { sign } = await resp.json();
         if (!sign) throw new Error('No sign returned');
-        window.location.href = `avatar.html?sign=${encodeURIComponent(sign)}&conversationId=${encodeURIComponent(conversationId)}`;
+        duix.init({
+          appId: '1377185422953811968',
+          appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
+          sign,
+          conversationId,
+          container: document.getElementById('duix-container')
+        });
       } catch (e) {
         console.error(e);
-        alert('Failed to fetch sign: ' + e.message);
+        alert('Error: ' + e.message);
       }
     };
   </script>
