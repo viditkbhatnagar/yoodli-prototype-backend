@@ -14,31 +14,50 @@
   <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
 </head>
 
-<!-- avatar.html (essentials only) -->
 <body>
-  <div id="duix-container" style="width:100vw;height:100vh"></div>
+  <!-- DUIX will render inside this element once the calling page runs duix.init({...}) -->
+  <div id="duix-container"></div>
 
-  <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
+  <!-- DUIX bootstrap -->
   <script>
     (async () => {
-      const qs  = new URLSearchParams(location.search);
-      const sign = qs.get('sign');
-      const cid  = qs.get('conversationId');
-      if (!sign || !cid) { document.body.textContent = 'Missing params'; return; }
+      // --- helpers ---------------------------------------------------------
+      const qs = (k) => new URLSearchParams(location.search).get(k);
 
-      await duix.ready;               // wait for SDK to attach itself
-      console.log('duix ready');
+      // required params coming from the index page
+      const sign            = qs('sign');
+      const conversationId  = qs('conversationId');
 
-      await duix.init({
-        sign,
-        conversationId: cid,
-        containerLable: 'duix-container'
-      });
-      console.log('duix.init done');
-    })().catch(e => {
-      console.error(e);
-      document.body.textContent = 'DUIX SDK failed: ' + e.message;
-    });
+      if (!sign || !conversationId) {
+        document.body.textContent = 'Missing “sign” or “conversationId” in the URL.';
+        return;
+      }
+
+      // wait for the SDK global to appear
+      const duix = window.duix || window.DUIX;
+      if (!duix || typeof duix.init !== 'function') {
+        document.body.textContent = 'DUIX SDK failed to load – check network tab.';
+        return;
+      }
+
+      try {
+        await duix.init({
+          // <<< YOUR APP CREDENTIALS >>>
+          appId:  '1377185422953811968',
+          appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
+
+          // auth & routing
+          sign,
+          conversationId,
+
+          // where to render
+          containerLable: 'duix-container'
+        });
+      } catch (err) {
+        console.error(err);
+        document.body.textContent = 'duix.init failed: ' + err.message;
+      }
+    })();
   </script>
 </body>
 </html>
