@@ -16,10 +16,10 @@
   <div id="duix-container"></div>
 
   <script>
-    /* --- helpers -------------------------------------------------------- */
+    /* ---------- helpers ------------------------------------------------ */
     const getParam = k => new URLSearchParams(location.search).get(k);
 
-    /* --- boot ----------------------------------------------------------- */
+    /* ---------- bootstrap --------------------------------------------- */
     (async () => {
       const sign           = getParam('sign');
       const conversationId = getParam('conversationId');
@@ -29,18 +29,30 @@
         return;
       }
 
-      /* the SDK is exposed as window.duix (lower-case) in 0.2.x */
-      const duix = window.duix || window.DUIX;   // SDK may export either casing
-      if (!duix) {
+      /**
+       * 0.2.x of the DUIX browser SDK sometimes ships as an ESM bundle
+       * (export‑default) and sometimes as a UMD global.
+       * Grab whichever surface is actually present, then verify it really
+       * has an `init()` method before proceeding.
+       */
+      const sdk =
+        window.duix?.default   ??   // ESM (lower‑case, default export)
+        window.DUIX?.default   ??   // ESM (upper‑case, default export)
+        window.duix            ??   // UMD (lower‑case global)
+        window.DUIX;                // UMD (upper‑case global)
+
+      if (!sdk || typeof sdk.init !== 'function') {
+        console.error('DUIX SDK object not found or missing init():', sdk);
         document.body.textContent = 'DUIX SDK failed to load';
         return;
       }
 
       try {
-        await duix.init({
+        await sdk.init({
           appId          : '1377185422953811968',
           appKey         : '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
-          containerLable : 'duix-container',   // MUST match the div’s id
+          /**  Note the correct key is *containerLabel* (two Ls)  */
+          containerLabel : 'duix-container',
           sign,
           conversationId
         });
