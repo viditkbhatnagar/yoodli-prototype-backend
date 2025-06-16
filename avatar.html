@@ -1,63 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>AI Interview Avatar</title>
-
-  <style>
-    /* fill the whole viewport */
-    html,body { margin:0; height:100%; background:#f7f7f7; font-family:Arial,Helvetica,sans-serif; }
-    #duix-container { width:100vw; height:100vh; }
-  </style>
-
-  <!-- DUIX SDK (just loaded, not initialised here) -->
-  <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
-</head>
-
-<body>
-  <!-- DUIX will render inside this element once the calling page runs duix.init({...}) -->
-  <div id="duix-container"></div>
-
-  <!-- DUIX bootstrap -->
   <script>
-    (async () => {
-      // --- helpers ---------------------------------------------------------
+    /**
+     * Bootstraps the DUIX avatar page.
+     * 1. Reads `sign` & `conversationId` from the query‑string.
+     * 2. Waits for the SDK global (window.DUIX) to appear.
+     * 3. Calls DUIX.init and renders into #duix-container.
+     */
+
+    (() => {
+      // ---------------- helpers ----------------
       const qs = (k) => new URLSearchParams(location.search).get(k);
 
-      // required params coming from the index page
-      const sign            = qs('sign');
-      const conversationId  = qs('conversationId');
+      const sign           = qs('sign');
+      const conversationId = qs('conversationId');
 
+      // quick validation ‑‑ bail early if URL is wrong
       if (!sign || !conversationId) {
         document.body.textContent = 'Missing “sign” or “conversationId” in the URL.';
         return;
       }
 
-      // wait for the SDK global to appear
-      const duix = window.duix || window.DUIX;
-      if (!duix || typeof duix.init !== 'function') {
-        document.body.textContent = 'DUIX SDK failed to load – check network tab.';
-        return;
-      }
-
-      try {
-        await duix.init({
-          // <<< YOUR APP CREDENTIALS >>>
-          appId:  '1377185422953811968',
-          appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
-
-          // auth & routing
-          sign,
-          conversationId,
-
-          // where to render
-          containerLable: 'duix-container'
+      // ---------------- wait for SDK ----------------
+      function waitForSdk(retries = 20) {
+        return new Promise((resolve, reject) => {
+          const check = () => {
+            const sdk = window.DUIX;                // the SDK attaches here (uppercase)
+            if (sdk && typeof sdk.init === 'function') {
+              return resolve(sdk);
+            }
+            if (retries-- === 0) {
+              return reject(new Error('DUIX SDK failed to load – check network tab'));
+            }
+            setTimeout(check, 250);                 // keep polling every 250 ms
+          };
+          check();
         });
-      } catch (err) {
-        console.error(err);
-        document.body.textContent = 'duix.init failed: ' + err.message;
       }
+
+      // ---------------- main flow ----------------
+      (async () => {
+        try {
+          const duix = await waitForSdk();
+
+          await duix.init({
+            appId:  '1377185422953811968',
+            appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
+
+            sign,
+            conversationId,
+
+            containerLabel: 'duix-container'       // note the correct spelling
+          });
+        } catch (err) {
+          console.error(err);
+          document.body.textContent = 'duix.init failed: ' + err.message;
+        }
+      })();
     })();
   </script>
-</body>
-</html>
