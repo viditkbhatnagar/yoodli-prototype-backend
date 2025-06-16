@@ -30,7 +30,7 @@
       }
 
       /* the SDK is exposed as window.duix (lower-case) in 0.2.x */
-      const duix = window.duix;
+      const duix = window.duix || window.DUIX;   // SDK may export either casing
       if (!duix) {
         document.body.textContent = 'DUIX SDK failed to load';
         return;
@@ -38,7 +38,9 @@
 
       try {
         await duix.init({
-          containerLable : 'duix-container',   // <- MUST match the div’s id
+          appId          : '1377185422953811968',
+          appKey         : '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
+          containerLable : 'duix-container',   // MUST match the div’s id
           sign,
           conversationId
         });
