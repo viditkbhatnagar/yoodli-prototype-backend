@@ -18,7 +18,7 @@
     }
   </style>
   <!-- Include DUix SDK before your initialization code -->
-  <script src="https://cdn.guiji.ai/duix/sdk/0.2.2/duix.js"></script>
+  <script src="https://cdn.guiji.ai/duix/sdk/latest/duix.js"></script>
 </head>
 <body>
   <div id="duix-container"></div>
@@ -27,6 +27,7 @@
       const qs = (k) => new URLSearchParams(location.search).get(k);
       const sign = qs('sign');
       const conversationId = qs('conversationId');
+      const userId = qs('userId') || '';
       if (!sign || !conversationId) {
         document.body.textContent = 'Missing "sign" or "conversationId" in URL.';
         return;
@@ -53,6 +54,7 @@
             appKey: '4f3725b2-7d48-4ea7-8640-d1a11eb00f8c',
             sign,
             conversationId,
+            userId,
             containerLabel: 'duix-container'
           });
         } catch (err) {
